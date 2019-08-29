@@ -1,5 +1,6 @@
 import ftplib
 import os
+from io import BytesIO
 from helper import randomString
 
 class FTPManager:
@@ -41,11 +42,8 @@ class FTPManager:
        raise Exception("You must set the folder directory first")
 
   def DownloadFile(self, fileName):
-    #salvo direto no hd em um folder temporario, é menos eficiente que jogar na RAM mas permite
-    #que eu faça o download de arquivos pesados e paralelize essa operação (to do). 
-    absolutePath = os.path.abspath(".")
-    localFileName = '{0}/temp/{1}'.format(absolutePath, fileName)
-    with open(localFileName, 'wb') as f:
-        self.connection.retrbinary('RETR ' + fileName, f.write)
-    return localFileName
+    myfile = BytesIO()
+    self.connection.retrbinary('RETR ' + fileName, myfile.write)
+    myfile.seek(0)
+    return myfile
     

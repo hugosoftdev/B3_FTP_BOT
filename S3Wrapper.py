@@ -9,11 +9,10 @@ class S3Wrapper:
             #CONFERIR SE O AWS CLI ESTA CONFIGURADO NA MAQUINA
             self.client = boto3.client('s3')
 
-        def UploadFile(self, fileName, bucketName, objectName=None):
-            if objectName is None:
-              objectName = fileName
+        def UploadBinary(self, binaryData, bucketName, objectName=None):
             try:
-              self.client.upload_file(fileName, bucketName, objectName)
+              self.client.put_object(Body=binaryData, Bucket=bucketName,
+                                Key=objectName)
             except ClientError as e:
               logging.error(e)
               return False

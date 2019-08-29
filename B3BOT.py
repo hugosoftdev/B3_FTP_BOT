@@ -1,7 +1,7 @@
 from S3Wrapper import S3Wrapper
 from FTPManager import FTPManager
 import os
-import shutil
+import json
 
 
 class B3Bot:
@@ -15,15 +15,6 @@ class B3Bot:
                 fileNames = self.s3.ListBucketFiles('pfedell')
                 self.AlreadyDownloaded =  fileNames
 
-        def CleanTempFolder(self):
-                absolutePath = os.path.abspath(".")
-                path = absolutePath + "/temp"
-                for root, dirs, files in os.walk(path):
-                        for f in files:
-                                os.unlink(os.path.join(root, f))
-                        for d in dirs:
-                                shutil.rmtree(os.path.join(root, d))
-
         def Run(self):
                 self.GetExistingFiles()
                 self.ftp.Login()
@@ -33,12 +24,19 @@ class B3Bot:
                 for item in self.ftp.ListFolderFiles():
                         if item not in self.AlreadyDownloaded:
                                 print("Downloading {0}...".format(item))
-                                downloadedFileName = self.ftp.DownloadFile(item)
+                                binaryData = self.ftp.DownloadFile(item)
                                 print("Uploading {0}...".format(item))
-                                self.s3.UploadFile(downloadedFileName, 'pfedell', item)
+                                self.s3.UploadBinary(
+                                    binaryData, 'pfedell', item)
                                 self.AlreadyDownloaded.append(item)
-                self.CleanTempFolder()
 
 
-bot = B3Bot()
-bot.Run()
+def lambda_handler(event, context):
+    bot = B3Bot()
+    bot.Run()
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Done')
+    }
+
+
