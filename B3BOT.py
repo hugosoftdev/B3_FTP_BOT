@@ -9,7 +9,6 @@ class B3Bot:
                 self.AlreadyDownloaded = []
                 self.s3 = S3Wrapper()
                 self.ftp = FTPManager('ftp.bmf.com.br')
-                self.CleanTempFolder()
 
         def GetExistingFiles(self):
                 fileNames = self.s3.ListBucketFiles('pfedell')
