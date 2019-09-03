@@ -9,9 +9,10 @@ class B3Bot:
                 self.AlreadyDownloaded = []
                 self.s3 = S3Wrapper()
                 self.ftp = FTPManager('ftp.bmf.com.br')
+                self.bucketName = 'b3ftpraw2'
 
         def GetExistingFiles(self):
-                fileNames = self.s3.ListBucketFiles('b3ftpraw2')
+                fileNames = self.s3.ListBucketFiles(self.bucketName)
                 self.AlreadyDownloaded =  fileNames
 
         def Run(self):
@@ -26,7 +27,7 @@ class B3Bot:
                                 binaryData = self.ftp.DownloadFile(item)
                                 print("Uploading {0}...".format(item))
                                 self.s3.UploadBinary(
-                                    binaryData, 'pfedell', item)
+                                    binaryData, self.bucketName, item)
                                 self.AlreadyDownloaded.append(item)
 
 
